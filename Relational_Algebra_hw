@@ -1,0 +1,57 @@
+    Person(name, age, gender)       // name is a key
+    Frequents(name, pizzeria)       // [name,pizzeria] is a key
+    Eats(name, pizza)               // [name,pizza] is a key
+    Serves(pizzeria, pizza, price)  // [pizzeria,pizza] is a key
+
+Challenging questions
+Find the age of the oldest person (or people) who eat mushroom pizza.
+
+\project_{age}(
+\select_{age1 < age}(\rename_{age1}(\project_{age}(\project_{name}(\select_{pizza = "mushroom"} Eats)\join Person))
+\join \project_{age}(\project_{name}(\select_{pizza = "mushroom"} Eats)\join Person)))
+\diff
+(
+\project_{age1}(
+\select_{age1 < age}(\rename_{age1}(\project_{age}(\project_{name}(\select_{pizza = "mushroom"} Eats)\join Person))
+\join
+\project_{age}(\project_{name}(\select_{pizza = "mushroom"} Eats)\join Person))))
+
+==================================================================
+Find all pizzerias that serve only pizzas eaten by people over 30. 
+
+\project_{pizzeria}Serves
+\diff
+(
+\project_{pizzeria}
+(\project_{pizza} Serves
+\diff
+(
+\project_{pizza}(
+\project_{name}(\select_{age > 30} Person)\join Eats\join Serves)
+)
+\join Serves)
+)
+
+==================================================================
+Find all pizzerias that serve every pizza eaten by people over 30. 
+\project_{pizzeria}(\project_{pizza}(
+\project_{name}(\select_{age > 30} Person)\join Eats\join Serves)
+\join Serves
+)
+\diff
+(
+\project_{pizzeria}(
+\project_{pizzeria}(\project_{pizza}(
+\project_{name}(\select_{age > 30} Person)\join Eats\join Serves)
+\join Serves
+)
+\cross
+\project_{pizza}(\project_{pizza}(
+\project_{name}(\select_{age > 30} Person)\join Eats\join Serves)
+\join Serves
+)
+\diff
+(\project_{pizzeria, pizza}(\project_{pizza}(
+\project_{name}(\select_{age > 30} Person)\join Eats\join Serves)
+\join Serves
+))))
